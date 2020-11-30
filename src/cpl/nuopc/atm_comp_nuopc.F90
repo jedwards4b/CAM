@@ -373,6 +373,7 @@ contains
     logical                 :: restart_run                       ! continue a previous run; requires a restart file
     logical                 :: branch_run                        ! branch from a previous run; requires a restart file
     character(len=CL)       :: tempc1,tempc2
+    integer                 :: nthrds
     integer                 :: shrlogunit          ! original log unit
     real(r8)        , parameter :: radtodeg = 180.0_r8/shr_const_pi
     integer         , parameter :: aqua_perpetual_ymd = 321
@@ -397,11 +398,24 @@ contains
     call ESMF_VMGet(vm, mpiCommunicator=lmpicom, rc=rc)
     if (chkerr(rc,__LINE__,u_FILE_u)) return
 
+!
+!   Two possible ways to implement threading ESMF aware and ESMF unaware
+!   first check for ESMF aware (localPeCount is number of component threads)
+!   then fallback to ESMF unaware
+!
     call ESMF_VMGet(vm, pet=localPet, peCount=localPeCount, rc=rc)
     if (chkerr(rc,__LINE__,u_FILE_u)) return
 
-!$  call omp_set_num_threads(localPeCount)
-    print *,__FILE__,__LINE__,localPeCount
+    if(localPeCount == 1) then
+       call NUOPC_CompAttributeGet(gcomp, "nthreads", value=cvalue, rc=rc)
+       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=u_FILE_u)) return
+       read(cvalue,*) nthrds
+    else
+       nthrds = localPeCount
+    endif
+
+!$  call omp_set_num_threads(nthrds)
+    print *,__FILE__,__LINE__,localPeCount, nthrds
 
     !----------------------------------------------------------------------------
     ! determine instance information
@@ -1000,6 +1014,7 @@ contains
     integer                 :: lbnum
     integer                 :: localPet, localPeCount
     logical                 :: first_time = .true.
+    integer                 :: nthrds
     character(len=*),parameter  :: subname=trim(modName)//':(ModelAdvance) '
     !-------------------------------------------------------------------------------
 
@@ -1007,10 +1022,23 @@ contains
 
     call ESMF_GridCompGet(gcomp, vm=vm, localPet=localPet, rc=rc)
     if (chkerr(rc,__LINE__,u_FILE_u)) return
+
+!
+!   Two possible ways to implement threading ESMF aware and ESMF unaware
+!   first check for ESMF aware (localPeCount is number of component threads)
+!   then fallback to ESMF unaware
+
     call ESMF_VMGet(vm, pet=localPet, peCount=localPeCount, rc=rc)
     if (chkerr(rc,__LINE__,u_FILE_u)) return
+    if(localPeCount == 1) then
+       call NUOPC_CompAttributeGet(gcomp, "nthreads", value=cvalue, rc=rc)
+       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=u_FILE_u)) return
+       read(cvalue,*) nthrds
+    else
+       nthrds = localPeCount
+    endif
 
-!$  call omp_set_num_threads(localPeCount)
+!$  call omp_set_num_threads(nthrds)
 
     call shr_file_getLogUnit (shrlogunit)
     call shr_file_setLogUnit (iulog)
