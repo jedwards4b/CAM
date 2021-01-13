@@ -743,7 +743,7 @@ end subroutine phys_grid_readnl
           maxblksiz = max(maxblksiz,get_block_gcol_cnt_d(jb))
        enddo
        if (pcols < maxblksiz) then
-	  write(iulog,*) 'pcols = ',pcols, ' maxblksiz=',maxblksiz
+          write(iulog,*) 'pcols = ',pcols, ' maxblksiz=',maxblksiz
           call endrun ('PHYS_GRID_INIT error: phys_loadbalance -1 specified but PCOLS < MAXBLKSIZ')
        endif
 
@@ -3784,6 +3784,8 @@ logical function phys_grid_initialized ()
 #if ( defined _OPENMP )
    integer omp_get_max_threads
    external omp_get_max_threads
+   integer omp_get_num_threads
+   external omp_get_num_threads
 #endif
 
 !-----------------------------------------------------------------------
@@ -3792,7 +3794,8 @@ logical function phys_grid_initialized ()
 !
    nlthreads = 1
 #if ( defined _OPENMP )
-   nlthreads = OMP_GET_MAX_THREADS()
+!   nlthreads = OMP_GET_MAX_THREADS()
+   nlthreads = OMP_GET_NUM_THREADS()
 #endif
 !
 #if ( defined SPMD )

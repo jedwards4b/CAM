@@ -522,7 +522,9 @@ contains
     if (.not. found) then
       ! Create a new iodesc
       if(masterproc) then
+!$OMP MASTER
         write(iulog,*) 'Creating new decomp: ', iodesc_p%tag
+!$OMP END MASTER
       end if
 
       call t_startf('get_filemap')
@@ -1109,6 +1111,7 @@ contains
     integer                                   :: mode
 
     mode = ior(PIO_CLOBBER, pio_ioformat)
+
     if (present(mode_in)) then
       mode = ior(mode, mode_in)
     end if
