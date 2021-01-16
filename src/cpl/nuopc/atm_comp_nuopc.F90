@@ -1011,7 +1011,6 @@ contains
     logical                 :: nlend       ! Flag signaling last time-step
     integer                 :: lbnum
     logical                 :: first_time = .true.
-    integer                 :: nthrds
     character(len=*),parameter  :: subname=trim(modName)//':(ModelAdvance) '
     !-------------------------------------------------------------------------------
 
