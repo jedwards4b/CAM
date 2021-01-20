@@ -296,6 +296,7 @@ contains
   subroutine InitializeRealize(gcomp, importState, exportState, clock, rc)
 
     use ESMF, only : ESMF_VMGet
+    use phys_grid, only : get_grid_dims
 
     ! input/output variables
     type(ESMF_GridComp)  :: gcomp
@@ -621,6 +622,7 @@ contains
          curr_ymd=curr_ymd, &
          curr_tod=curr_tod, &
          cam_out=cam_out, &
+         post_assim_in=.false., &
          cam_in=cam_in)
 
     if (mediator_present) then
@@ -720,7 +722,7 @@ contains
        call export_fields( gcomp, cam_out, rc=rc  )
        if (ChkErr(rc,__LINE__,u_FILE_u)) return
 
-       call get_horiz_grid_dim_d(hdim1_d, hdim2_d)
+       call get_grid_dims(hdim1_d, hdim2_d)
        call State_SetScalar(dble(hdim1_d), flds_scalar_index_nx, exportState, &
             flds_scalar_name, flds_scalar_num, rc)
        if (ChkErr(rc,__LINE__,u_FILE_u)) return
