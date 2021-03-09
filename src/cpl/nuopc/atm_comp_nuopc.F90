@@ -44,8 +44,8 @@ module atm_comp_nuopc
   use cam_history_support , only : fillvalue
   use filenames           , only : interpret_filename_spec
   use pio                 , only : file_desc_t, io_desc_t, var_desc_t, pio_double, pio_def_dim, PIO_MAX_NAME
-  use pio                 , only : pio_closefile, pio_put_att, pio_enddef, pio_nowrite 
-  use pio                 , only : pio_inq_dimid, pio_inq_varid, pio_inquire_dimension, pio_def_var  
+  use pio                 , only : pio_closefile, pio_put_att, pio_enddef, pio_nowrite
+  use pio                 , only : pio_inq_dimid, pio_inq_varid, pio_inquire_dimension, pio_def_var
   use pio                 , only : pio_initdecomp, pio_freedecomp
   use pio                 , only : pio_read_darray, pio_write_darray
   use pio                 , only : pio_noerr, pio_bcast_error, pio_internal_error, pio_seterrorhandling
@@ -88,6 +88,7 @@ module atm_comp_nuopc
   type(cam_in_t)  , pointer    :: cam_in(:)
   type(cam_out_t) , pointer    :: cam_out(:)
   integer         , pointer    :: dof(:)              ! global index space decomposition
+  integer                      :: nthrds
   character(len=256)           :: rsfilename_spec_cam ! Filename specifier for restart surface file
   character(*)    ,parameter   :: modName =  "(atm_comp_nuopc)"
   character(*)    ,parameter   :: u_FILE_u = &
@@ -400,10 +401,17 @@ contains
 
     call ESMF_VMGet(vm, pet=localPet, peCount=localPeCount, rc=rc)
     if (chkerr(rc,__LINE__,u_FILE_u)) return
-
-!$  call omp_set_num_threads(localPeCount)
-    print *,__FILE__,__LINE__,localPeCount
-
+    if(localPeCount == 1) then
+       call NUOPC_CompAttributeGet(gcomp, "nthreads", value=cvalue, rc=rc)
+       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, line=__LINE__, file=u_FILE_u)) return
+       read(cvalue,*) nthrds
+    else
+       nthrds = localPeCount
+    endif
+!$  call omp_set_num_threads(nthrds)
+    if (localPet==0) then
+       write(iulog,*) 'nthrds set to ',nthrds
+    endif
     !----------------------------------------------------------------------------
     ! determine instance information
     !----------------------------------------------------------------------------
@@ -492,7 +500,7 @@ contains
     if (ChkErr(rc,__LINE__,u_FILE_u)) return
     read(cvalue,*) aqua_planet
 
-    ! perpetual input 
+    ! perpetual input
     call NUOPC_CompAttributeGet(gcomp, name='perpetual', value=cvalue, rc=rc)
     if (ChkErr(rc,__LINE__,u_FILE_u)) return
     read(cvalue,*) perpetual_run
@@ -957,7 +965,6 @@ contains
     integer, intent(out) :: rc
 
     ! local variables
-    type(ESMF_VM)           :: vm
     type(ESMF_Clock)        :: clock
     type(ESMF_Alarm)        :: alarm
     type(ESMF_Time)         :: time
@@ -991,19 +998,13 @@ contains
     logical                 :: rstwr       ! .true. ==> write restart file before returning
     logical                 :: nlend       ! Flag signaling last time-step
     integer                 :: lbnum
-    integer                 :: localPet, localPeCount
     logical                 :: first_time = .true.
     character(len=*),parameter  :: subname=trim(modName)//':(ModelAdvance) '
     !-------------------------------------------------------------------------------
 
     rc = ESMF_SUCCESS
 
-    call ESMF_GridCompGet(gcomp, vm=vm, localPet=localPet, rc=rc)
-    if (chkerr(rc,__LINE__,u_FILE_u)) return
-    call ESMF_VMGet(vm, pet=localPet, peCount=localPeCount, rc=rc)
-    if (chkerr(rc,__LINE__,u_FILE_u)) return
-
-!$  call omp_set_num_threads(localPeCount)
+!$  call omp_set_num_threads(nthrds)
 
     call shr_file_getLogUnit (shrlogunit)
     call shr_file_setLogUnit (iulog)
