@@ -17,7 +17,7 @@ module atm_comp_nuopc
   use NUOPC_Model         , only : model_label_Finalize       => label_Finalize
   use NUOPC_Model         , only : NUOPC_ModelGet
   use shr_kind_mod        , only : r8=>shr_kind_r8, i8=>shr_kind_i8, cl=>shr_kind_cl, cs=>shr_kind_cs
-  use shr_sys_mod         , only : shr_sys_abort
+  use shr_sys_mod         , only : shr_sys_abort, shr_sys_flush
   use shr_file_mod        , only : shr_file_getlogunit, shr_file_setlogunit
   use shr_cal_mod         , only : shr_cal_noleap, shr_cal_gregorian, shr_cal_ymd2date
   use shr_const_mod       , only : shr_const_pi
@@ -109,6 +109,9 @@ module atm_comp_nuopc
   character(len=*) , parameter :: orb_fixed_parameters = 'fixed_parameters'
 
   real(R8) , parameter         :: grid_tol = 1.e-2_r8 ! tolerance for calculated lat/lon vs read in
+
+  type(ESMF_Mesh)              :: mesh0
+
 !===============================================================================
 contains
 !===============================================================================
@@ -603,6 +606,8 @@ contains
        perpetual_ymd = aqua_perpetual_ymd
     end if
 
+    call ESMF_VMLogMemInfo('Before: cam_init')
+    
     call cam_init( &
          caseid=caseid, ctitle=ctitle, model_doi_url=model_doi_url, &
          initial_run_in=initial_run, restart_run_in=restart_run, &
@@ -614,6 +619,8 @@ contains
          dtime=dtime, start_ymd=start_ymd, start_tod=start_tod, ref_ymd=ref_ymd, ref_tod=ref_tod, &
          stop_ymd=stop_ymd, stop_tod=stop_tod, curr_ymd=curr_ymd, curr_tod=curr_tod, &
          cam_out=cam_out,  cam_in=cam_in)
+
+    call ESMF_VMLogMemInfo('After: cam_init')
 
     if (mediator_present) then
 
@@ -641,18 +648,26 @@ contains
           end do
 
           ! create distGrid from global index array
+          call ESMF_VMLogMemInfo('Before: distgridcreate')
           DistGrid = ESMF_DistGridCreate(arbSeqIndexList=dof, rc=rc)
           if (ChkErr(rc,__LINE__,u_FILE_u)) return
+          call ESMF_VMLogMemInfo('After: distgridcreate')
 
-          ! read in the mesh
+          ! read in the mesh using distgrid
           call NUOPC_CompAttributeGet(gcomp, name='mesh_atm', value=cvalue, rc=rc)
           if (ChkErr(rc,__LINE__,u_FILE_u)) return
-
-          mesh = ESMF_MeshCreate(filename=trim(cvalue), fileformat=ESMF_FILEFORMAT_ESMFMESH, &
-               elementDistgrid=Distgrid, rc=rc)
-          if (ChkErr(rc,__LINE__,u_FILE_u)) return
           if (masterproc) then
-             write(iulog,*)'mesh file for cam domain is ',trim(cvalue)
+             write(iulog,*)'reading mesh file for cam domain is ',trim(cvalue)
+             call shr_sys_flush(iulog)
+          end if
+          call ESMF_VMLogMemInfo('Before: mesh create from cam read')
+          mesh = ESMF_MeshCreateFromFile(filename=trim(cvalue), fileformat=ESMF_FILEFORMAT_ESMFMESH, &
+               elementDistgrid=DistGrid, rc=rc)
+          if (ChkErr(rc,__LINE__,u_FILE_u)) return
+          call ESMF_VMLogMemInfo('After: mesh create from cam read')
+          if (masterproc) then
+             write(iulog,*)'read in the mesh on its own distgrid'
+             call shr_sys_flush(iulog)
           end if
 
           ! obtain mesh lats and lons
@@ -835,7 +850,6 @@ contains
           if (.not. atCorrectTime) then
              call ESMF_LogWrite("CAM - Initialize-Data-Dependency NOT YET SATISFIED!!!", ESMF_LOGMSG_INFO, rc=rc)
              if (ChkErr(rc,__LINE__,u_FILE_u)) return
-
              importDone = .false.
              exit  ! break out of the loop when first not satisfied found
           end if
@@ -849,6 +863,9 @@ contains
           call ESMF_LogWrite("CAM - Initialize-Data-Dependency Returning to mediator without doing tphysbc", &
                ESMF_LOGMSG_INFO, rc=rc)
           if (ChkErr(rc,__LINE__,u_FILE_u)) return
+          if (masterproc) then
+             write(iulog,*)"CAM - Initialize-Data-Dependency Returning to mediator without doing tphysbc"
+          end if
           RETURN
        end if
 
@@ -856,6 +873,9 @@ contains
 
        call ESMF_LogWrite("CAM - Initialize-Data-Dependency doing tphysbc", ESMF_LOGMSG_INFO, rc=rc)
        if (ChkErr(rc,__LINE__,u_FILE_u)) return
+       if (masterproc) then
+          write(iulog,*)"CAM - Initialize-Data-Dependency doing tphysbc"
+       end if
 
        ! get the current step number and coupling interval
        call ESMF_ClockGet( clock, TimeStep=timeStep, advanceCount=stepno, rc=rc )

@@ -4,6 +4,7 @@ module mo_drydep
   !       ... Dry deposition
   !---------------------------------------------------------------------
 
+  use ESMF
   use shr_kind_mod,     only : r8 => shr_kind_r8, shr_kind_cl
   use chem_mods,        only : gas_pcnst
   use pmgrid,           only : plev
@@ -68,8 +69,6 @@ module mo_drydep
   real(r8), parameter    :: ph          = 1.e-5_r8
   real(r8), parameter    :: ph_inv      = 1._r8/ph
   real(r8), parameter    :: rovcp = r/cp
-
-  integer, pointer :: index_season_lai(:,:)
 
   logical, public :: has_dvel(gas_pcnst) = .false.
   integer         :: map_dvel(gas_pcnst) = 0
@@ -422,109 +421,19 @@ contains
 
     plon = get_dyn_grid_parm('plon')
     plat = get_dyn_grid_parm('plat')
+    if (masterproc) then
+       write(iulog,*) 'dvel_inti: plon is ',plon
+       write(iulog,*) 'dvel_inti: plat is ',plat
+    end if
 
     if(dycore_is('UNSTRUCTURED') ) then
+       call ESMF_VMLogMemInfo('Before: call to get_landuse_and_soilw_from_file')
        call get_landuse_and_soilw_from_file()
-       allocate( index_season_lai(plon,12),stat=astat )
-       index_season_lai = -huge(1)
-       if( astat /= 0 ) then
-          write(iulog,*) 'dvel_inti: failed to allocate index_season_lai; error = ',astat
-          call endrun
-       end if
+       call ESMF_VMLogMemInfo('After: call to get_landuse_and_soilw_from_file')
     else
-       allocate( index_season_lai(plat,12),stat=astat )
-       index_season_lai = -huge(1)
-       if( astat /= 0 ) then
-          write(iulog,*) 'dvel_inti: failed to allocate index_season_lai; error = ',astat
-          call endrun
-       end if
-       !---------------------------------------------------------------------------
-       ! 	... read landuse map
-       !---------------------------------------------------------------------------
-       call getfil (depvel_lnd_file, locfn, 0)
-       call cam_pio_openfile (piofile, trim(locfn), PIO_NOWRITE)
-       !---------------------------------------------------------------------------
-       ! 	... get the dimensions
-       !---------------------------------------------------------------------------
-       ierr = pio_inq_dimid( piofile, 'lon', dimid )
-       ierr = pio_inq_dimlen( piofile, dimid, nlon_veg )
-       ierr = pio_inq_dimid( piofile, 'lat', dimid )
-       ierr = pio_inq_dimlen( piofile, dimid, nlat_veg )
-       ierr = pio_inq_dimid( piofile, 'pft', dimid )
-       ierr = pio_inq_dimlen( piofile, dimid, npft_veg )
-       !---------------------------------------------------------------------------
-       ! 	... allocate arrays
-       !---------------------------------------------------------------------------
-       allocate( vegetation_map(nlon_veg,nlat_veg,npft_veg), work(nlon_veg,nlat_veg), stat=astat )
-       if( astat /= 0 ) then
-          write(iulog,*) 'dvel_inti: failed to allocate vegation_map; error = ',astat
-          call endrun
-       end if
-       allocate( urban(nlon_veg,nlat_veg), lake(nlon_veg,nlat_veg), &
-            landmask(nlon_veg,nlat_veg), wetland(nlon_veg,nlat_veg), stat=astat )
-       if( astat /= 0 ) then
-          write(iulog,*) 'dvel_inti: failed to allocate vegation_map; error = ',astat
-          call endrun
-       end if
-       allocate( lon_veg(nlon_veg), lat_veg(nlat_veg), &
-            lon_veg_edge(nlon_veg+1), lat_veg_edge(nlat_veg+1), stat=astat )
-       if( astat /= 0 ) then
-          write(iulog,*) 'dvel_inti: failed to allocate vegation lon, lat arrays; error = ',astat
-          call endrun
-       end if
-       !---------------------------------------------------------------------------
-       ! 	... read the vegetation map and landmask
-       !---------------------------------------------------------------------------
-       ierr = pio_inq_varid( piofile, 'PCT_PFT', vid )
-       ierr = pio_get_var( piofile, vid, vegetation_map )
-
-       ierr = pio_inq_varid( piofile, 'LANDMASK', vid )
-       ierr = pio_get_var( piofile, vid, landmask )
-
-       ierr = pio_inq_varid( piofile, 'PCT_URBAN', vid )
-       ierr = pio_get_var( piofile, vid, urban )
-
-       ierr = pio_inq_varid( piofile, 'PCT_LAKE', vid )
-       ierr = pio_get_var( piofile, vid, lake )
-
-       ierr = pio_inq_varid( piofile, 'PCT_WETLAND', vid )
-       ierr = pio_get_var( piofile, vid, wetland )
-
-       call cam_pio_closefile( piofile )
-
-       !---------------------------------------------------------------------------
-       ! scale vegetation, urban, lake, and wetland to fraction
-       !---------------------------------------------------------------------------
-       vegetation_map(:,:,:) = .01_r8 * vegetation_map(:,:,:)
-       wetland(:,:)          = .01_r8 * wetland(:,:)
-       lake(:,:)             = .01_r8 * lake(:,:)
-       urban(:,:)            = .01_r8 * urban(:,:)
-#ifdef DEBUG
-       if(masterproc) then
-          write(iulog,*) 'minmax vegetation_map ',minval(vegetation_map),maxval(vegetation_map)
-          write(iulog,*) 'minmax wetland        ',minval(wetland),maxval(wetland)
-          write(iulog,*) 'minmax landmask       ',minval(landmask),maxval(landmask)
-       end if
-#endif
-       !---------------------------------------------------------------------------
-       ! 	... define lat-lon of vegetation map (1x1)
-       !---------------------------------------------------------------------------
-       lat_veg(:)      = (/ (-89.5_r8 + (i-1),i=1,nlat_veg  ) /)
-       lon_veg(:)      = (/ (  0.5_r8 + (i-1),i=1,nlon_veg  ) /)
-       lat_veg_edge(:) = (/ (-90.0_r8 + (i-1),i=1,nlat_veg+1) /)
-       lon_veg_edge(:) = (/ (  0.0_r8 + (i-1),i=1,nlon_veg+1) /)
-
-       !---------------------------------------------------------------------------
-       ! 	... regrid to model grid
-       !---------------------------------------------------------------------------
-       call interp_map( plon, plat, nlon_veg, nlat_veg, npft_veg, lat_veg, lat_veg_edge, &
-            lon_veg, lon_veg_edge, landmask, urban, lake, &
-            wetland, vegetation_map )
-
-       deallocate( vegetation_map, work, stat=astat )
-       deallocate( lon_veg, lat_veg, lon_veg_edge, lat_veg_edge, stat=astat )
-       deallocate( landmask, urban, lake, wetland, stat=astat )
+       ! commented out for debugging
     endif  ! Unstructured grid
+    call ESMF_VMLogMemInfo('At end of dvel_inti_xactive')
 
   end subroutine dvel_inti_xactive
 
