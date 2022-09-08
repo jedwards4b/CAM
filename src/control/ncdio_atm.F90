@@ -490,7 +490,9 @@ contains
                                 cam_grid_dimensions
     use cam_pio_utils,    only: cam_permute_array, calc_permutation
     use cam_pio_utils,    only: cam_pio_check_var, cam_pio_inq_var_fill
-
+    ! debug
+    use cam_pio_utils,    only: pio_subsystem
+    use pio,              only: pio_write_nc_dof, pio_set_log_level
     !
     ! !ARGUMENTS:
     implicit none
@@ -659,10 +661,21 @@ contains
         call cam_grid_get_decomp(grid_id, arraydimsize, dimlens(1:2),         &
              pio_double, iodesc, field_dnames=field_dnames,                   &
              file_dnames=file_dnames(1:2))
+        if(trim(varname) .eq. 'T') then
+           ierr = pio_set_log_level(2)
+        endif
         call pio_read_darray(ncid, varid, iodesc, field, ierr)
-          if (present(fillvalue)) then
-             ierr = cam_pio_inq_var_fill(ncid, varid, fillvalue)
-          end if
+        if(trim(varname) .eq. 'T') then
+           print *,__FILE__,__LINE__,trim(varname),maxval(field), varid%varid
+           if(maxval(field) > 450.0) then
+              call endrun(trim(subname)//': bad t value found')
+           endif
+           ierr = pio_set_log_level(0)
+!           call pio_write_nc_dof(pio_subsystem, trim(varname)//'_dof.nc', 1,iodesc, ierr)
+        end if
+        if (present(fillvalue)) then
+           ierr = cam_pio_inq_var_fill(ncid, varid, fillvalue)
+        end if
       end if
 
       if (masterproc) write(iulog,*) subname//': read field '//trim(varname)
