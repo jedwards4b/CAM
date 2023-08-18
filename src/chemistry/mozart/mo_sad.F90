@@ -1,5 +1,7 @@
       module mo_sad
 
+!updated for TS1.2 (nat_part_dens)
+
       use shr_kind_mod,  only : r8 => shr_kind_r8
       use physconst,     only : pi
       use ppgrid,        only : pcols, pver
@@ -7,7 +9,6 @@
       use cam_logfile,   only : iulog
       use spmd_utils,    only : masterproc
       
-
       implicit none
 
       private
@@ -961,7 +962,8 @@ sts_nat_sad : &
 !----------------------------------------------------------------------
       real(r8), parameter :: avo_num          = 6.02214e23_r8, &
                              nat_mass_dens    = 1.6_r8, &
-                             nat_part_dens    = 1.0e-2_r8, &
+! updated for TS1.2            nat_part_dens    = 1.0e-2_r8, &
+                             nat_part_dens    = 5.0e-4_r8, &
                              mwnat            = 117._r8, &
                              sigma_nat        = 1.6_r8, &
                              nat_dens_aer     = nat_mass_dens / (mwnat/avo_num), &

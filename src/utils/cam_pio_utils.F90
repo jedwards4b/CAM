@@ -1094,7 +1094,7 @@ contains
     end if
   end subroutine clean_iodesc_list
 
-  subroutine cam_pio_createfile(file, fname, mode_in)
+  subroutine cam_pio_createfile(file, fname, mode_in, iotype_override)
     use pio, only : pio_createfile, file_desc_t, pio_noerr, pio_clobber, pio_iotask_rank
     use cam_abortutils, only : endrun
 
@@ -1102,6 +1102,7 @@ contains
     type(file_desc_t),          intent(inout) :: file
     character(len=*),           intent(in)    :: fname
     integer,          optional, intent(in)    :: mode_in
+    integer,          optional, intent(in)    :: iotype_override
 
     ! Local variables
     integer                                   :: ierr
@@ -1109,11 +1110,13 @@ contains
 
     mode = ior(PIO_CLOBBER, pio_ioformat)
     if (present(mode_in)) then
-      mode = ior(mode, mode_in)
+       mode = ior(mode, mode_in)
     end if
-
-    ierr = pio_createfile(pio_subsystem, file, pio_iotype, fname, mode)
-
+    if (present(iotype_override)) then
+       ierr = pio_createfile(pio_subsystem, file, iotype_override, fname, mode)
+    else
+       ierr = pio_createfile(pio_subsystem, file, pio_iotype, fname, mode)
+    endif
     if(ierr /= PIO_NOERR) then
        call endrun('Failed to open file,'//trim(fname)//', to write')
     else if(pio_iotask_rank(pio_subsystem) == 0) then

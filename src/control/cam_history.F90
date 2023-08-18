@@ -3832,7 +3832,7 @@ end subroutine print_active_fldlst
     use cam_pio_utils,    only: vdesc_ptr, cam_pio_handle_error, cam_pio_def_dim
     use cam_pio_utils,    only: cam_pio_createfile, cam_pio_def_var
     use sat_hist,         only: sat_hist_define
-
+    use pio, only : PIO_IOTYPE_NETCDF
     !-----------------------------------------------------------------------
 
     !
@@ -3917,8 +3917,10 @@ end subroutine print_active_fldlst
 
     if(restart) then
       call cam_pio_createfile (tape(t)%File, hrestpath(t), amode)
+    else if(is_satfile(t)) then
+       call cam_pio_createfile (tape(t)%File, nhfil(t), amode, iotype_override=PIO_IOTYPE_NETCDF)
     else
-      call cam_pio_createfile (tape(t)%File, nhfil(t), amode)
+       call cam_pio_createfile (tape(t)%File, nhfil(t), amode)
     end if
     if(is_satfile(t)) then
       interpolate = .false. ! !!XXgoldyXX: Do we ever want to support this?
