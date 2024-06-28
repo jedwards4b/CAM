@@ -51,7 +51,7 @@
 	path = src/chemistry/geoschem/geoschem_src
 	url = https://github.com/geoschem/geos-chem.git
         fxrequired = AlwaysRequired
-        fxtag = geoschem_14.4_in_cesm
+        fxtag = feature/geoschem_14.4_in_cesm
         fxDONOTUSEurl = https://github.com/geoschem/geos-chem.git
 
 [submodule "cloud_j"]
