@@ -297,7 +297,8 @@ sub get_dep_list
     my $first = 1; my $pre = "";
     foreach my $name (sort @species_list) {
 	foreach my $item (@master_list) {
-	    if (!($item ~~ @nottransported_list)) {
+            foreach my $nottransported (@nottransported_list) {
+	    if (!($item =~ $nottransported)) {
 		if ($name eq $item) {
 		    $list .= $pre .  quote_string($name) ;
 		    if ($first) { $pre = ","; $first = 0; }
