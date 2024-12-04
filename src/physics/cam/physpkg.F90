@@ -35,6 +35,12 @@ module physpkg
   use modal_aero_calcsize,    only: modal_aero_calcsize_init, modal_aero_calcsize_diag, modal_aero_calcsize_reg
   use modal_aero_wateruptake, only: modal_aero_wateruptake_init, modal_aero_wateruptake_dr, modal_aero_wateruptake_reg
 
+   ! Custom 
+   !use ftorch,             only: torch_model  
+   !use simple_print,       only: print_cam
+   !use cam_nn,             only: init_torch_model, torch_inference
+   use cam_nn,             only: torch_inference
+
   implicit none
   private
   save
@@ -1147,6 +1153,9 @@ contains
     call t_barrierf('sync_ac_physics', mpicom)
     call t_startf ('ac_physics')
     call t_adj_detailf(+1)
+
+    ! Add ML model
+    call torch_inference(phys_state)
 
 !$OMP PARALLEL DO PRIVATE (C, NCOL, phys_buffer_chunk)
 
