@@ -1684,6 +1684,7 @@ else {
 # section of the Makefile.
 
 if    ($fc =~ /pgf/)    { $fc_type = 'pgi'; }
+elsif ($fc =~ /nvhpc/)  { $fc_type = 'pgi'; }
 elsif ($fc =~ /ifort/)  { $fc_type = 'intel'; }
 elsif ($fc =~ /^nag/)   { $fc_type = 'nag'; }
 elsif ($fc =~ /path/)   { $fc_type = 'pathscale'; }
@@ -1692,7 +1693,7 @@ elsif ($fc =~ /xlf/)    { $fc_type = 'ibm'; }
 
 # User override for Fortran compiler type
 if (defined $opts{'fc_type'}) { $fc_type = $opts{'fc_type'}; }
-
+if ($fc_type =~ /nvhpc/)  { $fc_type = 'pgi'; }
 if ($fc_type) {
     $cfg_ref->set('fc_type', $fc_type);
     if ($print>=2) { print "Fortran compiler type: $fc_type$eol"; }
