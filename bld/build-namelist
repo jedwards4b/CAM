@@ -3589,6 +3589,8 @@ if ($phys eq 'spcam_sam1mom' or $phys eq 'spcam_m2005') {
     add_default($nl, 'iradlw', 'val'=>'1');
 }
 
+
+
 #-----------------------------------------------------------------------------------------------
 # Add defaults for the ocean component.
 

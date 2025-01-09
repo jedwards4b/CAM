@@ -7747,4 +7747,8 @@ List of filepaths for dataset for offline unit driver.
 Default: none
 </entry>
 
+<entry id="weights_file" type="char*256" group="torch_nl" valid_values="">
+  Path to Nural Network weights file
+  Default: ftorch/simple_noise.pt
+</entry>
 </namelist_definition>
