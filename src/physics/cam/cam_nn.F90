@@ -1,4 +1,5 @@
 module cam_nn
+#ifdef USE_FTORCH
   use ftorch,         only: torch_kCUDA, torch_tensor, torch_model, torch_tensor_from_array, torch_kcpu
   use ftorch,         only: torch_model_load, torch_model_forward, torch_tensor_delete
   use camsrfexch,     only: cam_in_t
@@ -60,7 +61,7 @@ contains
     real(8), allocatable :: phys_state_pmid_array(:,:,:)
     real(8), allocatable :: phys_state_q_array(:,:,:,:)
     real(8), allocatable :: new_phys_state_t_array(:,:,:)
-    real(8), allocatable :: new_phys_state_q_array(:,:,:,:) 
+    real(8), allocatable :: new_phys_state_q_array(:,:,:,:)
 
     integer :: tensor_layout_3d(3) = [3,2,1]
     integer :: tensor_layout_4d(4) = [4,3,2,1]
@@ -76,7 +77,7 @@ contains
 
     ! Make Temp/pressure Tensor
     m = size(phys_state(1)%t, 1)  ! Number of columns/cells
-    n = size(phys_state(1)%t, 2)  ! Number of levels 
+    n = size(phys_state(1)%t, 2)  ! Number of levels
 
     allocate(phys_state_t_array(size(phys_state), m, n))
     allocate(phys_state_pmid_array(size(phys_state), m, n))
@@ -129,5 +130,5 @@ contains
     if (allocated(new_phys_state_q_array)) deallocate(new_phys_state_q_array)
 
   end subroutine torch_inference
-
+#endif
 end module cam_nn
