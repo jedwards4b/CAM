@@ -25,7 +25,9 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    use constituents,        only: cnst_readnl
 
    use phys_grid,           only: phys_grid_readnl
+#ifdef USE_TORCH
    use cam_nn,              only: torch_readnl
+#endif
    use chem_surfvals,       only: chem_surfvals_readnl
    use check_energy,        only: check_energy_readnl
    use radiation,           only: radiation_readnl
@@ -192,8 +194,9 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    call qneg_readnl(nlfilename)
 
    call ubc_readnl(nlfilename)
+#ifdef USE_TORCH
    call torch_readnl(nlfilename)
-   
+#endif   
 end subroutine read_namelist
 
 

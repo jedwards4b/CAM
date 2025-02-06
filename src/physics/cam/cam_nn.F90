@@ -5,7 +5,7 @@ module cam_nn
   use camsrfexch,     only: cam_in_t
   use physics_types,  only: physics_state
   use shr_kind_mod,   only: CL=>shr_kind_cl
-  use spmd_utils,     only: masterproc
+  use spmd_utils,     only: masterproc, mpicom, mpi_character
   use cam_abortutils,only: endrun
   implicit none
 
@@ -38,7 +38,11 @@ contains
        end if
        close(unitn)
     endif
-  end subroutine torch_readnl
+   ! Broadcast namelist variables
+   call mpi_bcast(weights_file,         CL, mpi_character, 0, mpicom, ierr)
+   if (ierr /= 0) call endrun("torch_readnl: FATAL: mpi_bcast: weights_file")
+
+ end subroutine torch_readnl
 
   subroutine init_torch_model(model)
     ! Initialize the model
