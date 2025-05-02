@@ -14,9 +14,9 @@
 
 [submodule "pumas"]
 	path = src/physics/pumas
-	url = https://github.com/ESCOMP/PUMAS
+	url = https://github.com/jedwards4b/PUMAS
         fxrequired = AlwaysRequired
-        fxtag = pumas_cam-release_v1.36
+        fxtag = 1nn_tau_emulator
         fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
 
 [submodule "pumas-frozen"]
@@ -143,15 +143,15 @@ fxDONOTUSEurl = https://github.com/ESCOMP/mizuRoute
 
 [submodule "ccs_config"]
 path = ccs_config
-url = https://github.com/ESMCI/ccs_config_cesm.git
-fxtag = ccs_config_cesm1.0.8
+url = https://github.com/jedwards4b/ccs_config_cesm.git
+fxtag = add_ftorch
 fxrequired = ToplevelRequired
 fxDONOTUSEurl = https://github.com/ESMCI/ccs_config_cesm.git
 
 [submodule "cime"]
 path = cime
-url = https://github.com/ESMCI/cime
-fxtag = cime6.1.41
+url = https://github.com/jedwards4b/cime
+fxtag = ftorch_1236c0fed
 fxrequired = ToplevelRequired
 fxDONOTUSEurl = https://github.com/ESMCI/cime
 
@@ -203,3 +203,10 @@ url = https://github.com/ESCOMP/FMS_interface
 fxtag = fi_240828
 fxrequired = ToplevelRequired
 fxDONOTUSEurl = https://github.com/ESCOMP/FMS_interface
+
+[submodule "FTorch"]
+	path = libraries/FTorch
+	url = https://github.com/ESCOMP/FTorch_interface
+fxtag = main
+fxrequired = ToplevelRequired
+fxDONOTUSEurl = https://github.com/ESCOMP/FTorch_interface
