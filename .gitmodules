@@ -1,113 +1,113 @@
 [submodule "chem_proc"]
-	path = chem_proc
-	url = https://github.com/ESCOMP/CHEM_PREPROCESSOR.git
+        path = chem_proc
+        url = https://github.com/ESCOMP/CHEM_PREPROCESSOR.git
         fxrequired = AlwaysRequired
         fxtag = chem_proc5_0_06
-	fxDONOTUSEurl = https://github.com/ESCOMP/CHEM_PREPROCESSOR.git
+        fxDONOTUSEurl = https://github.com/ESCOMP/CHEM_PREPROCESSOR.git
 
 [submodule "carma"]
-	path = src/physics/carma/base
-	url = https://github.com/ESCOMP/CARMA_base.git
+        path = src/physics/carma/base
+        url = https://github.com/ESCOMP/CARMA_base.git
         fxrequired = AlwaysRequired
         fxtag = carma4_01
         fxDONOTUSEurl = https://github.com/ESCOMP/CARMA_base.git
 
 [submodule "pumas"]
-	path = src/physics/pumas
-	url = https://github.com/jedwards4b/PUMAS
+        path = src/physics/pumas
+        url = https://github.com/jedwards4b/PUMAS
         fxrequired = AlwaysRequired
         fxtag = 1nn_tau_emulator_0.0.1
         fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
 
 [submodule "pumas-frozen"]
-	path = src/physics/pumas-frozen
-	url = https://github.com/ESCOMP/PUMAS
+        path = src/physics/pumas-frozen
+        url = https://github.com/ESCOMP/PUMAS
         fxrequired = AlwaysRequired
         fxtag = pumas_cam-release_v1.17_rename
         fxDONOTUSEurl = https://github.com/ESCOMP/PUMAS
 
 [submodule "ali_arms"]
-	path = src/physics/ali_arms
-	url = https://github.com/ESCOMP/ALI-ARMS
+        path = src/physics/ali_arms
+        url = https://github.com/ESCOMP/ALI-ARMS
         fxrequired = AlwaysRequired
         fxtag = ALI_ARMS_v1.0.1
         fxDONOTUSEurl = https://github.com/ESCOMP/ALI-ARMS
 
 [submodule "atmos_phys"]
-	path = src/atmos_phys
-	url = https://github.com/ESCOMP/atmospheric_physics
+        path = src/atmos_phys
+        url = https://github.com/ESCOMP/atmospheric_physics
         fxtag = atmos_phys0_06_000
         fxrequired = AlwaysRequired
-	fxDONOTUSEurl = https://github.com/ESCOMP/atmospheric_physics
+        fxDONOTUSEurl = https://github.com/ESCOMP/atmospheric_physics
 
 [submodule "fv3"]
-	path = src/dynamics/fv3
-	url = https://github.com/ESCOMP/CAM_FV3_interface.git
+        path = src/dynamics/fv3
+        url = https://github.com/ESCOMP/CAM_FV3_interface.git
         fxrequired = AlwaysRequired
         fxtag = fv3int_061924
-	fxDONOTUSEurl = https://github.com/ESCOMP/CAM_FV3_interface.git
+        fxDONOTUSEurl = https://github.com/ESCOMP/CAM_FV3_interface.git
 
 [submodule "geoschem"]
-	path = src/chemistry/geoschem/geoschem_src
-	url = https://github.com/geoschem/geos-chem.git
+        path = src/chemistry/geoschem/geoschem_src
+        url = https://github.com/geoschem/geos-chem.git
         fxrequired = AlwaysRequired
         fxtag = 14.4.3
         fxDONOTUSEurl = https://github.com/geoschem/geos-chem.git
 
 [submodule "cloud_j"]
-	path = src/chemistry/cloud_j
-	url = https://github.com/geoschem/cloud-j.git
+        path = src/chemistry/cloud_j
+        url = https://github.com/geoschem/cloud-j.git
         fxrequired = AlwaysRequired
         fxtag = 7.7.3
         fxDONOTUSEurl = https://github.com/geoschem/cloud-j.git
 
 [submodule "hetp"]
-	path = src/chemistry/hetp
-	url = https://github.com/geoschem/heterogeneous-vectorized-or-parallel.git
+        path = src/chemistry/hetp
+        url = https://github.com/geoschem/heterogeneous-vectorized-or-parallel.git
         fxrequired = AlwaysRequired
         fxtag = geoschem_hetp_1.0
         fxDONOTUSEurl = https://github.com/geoschem/heterogeneous-vectorized-or-parallel.git
 
 [submodule "hemco"]
-	path = src/hemco
-	url = https://github.com/ESCOMP/HEMCO_CESM.git
+        path = src/hemco
+        url = https://github.com/ESCOMP/HEMCO_CESM.git
         fxtag = hemco-cesm2_0_hemco3_9_0
         fxrequired = AlwaysRequired
-	fxDONOTUSEurl = https://github.com/ESCOMP/HEMCO_CESM.git
+        fxDONOTUSEurl = https://github.com/ESCOMP/HEMCO_CESM.git
 
 [submodule "rte-rrtmgp"]
-	path = src/physics/rrtmgp/ext
-	url = https://github.com/earth-system-radiation/rte-rrtmgp.git
+        path = src/physics/rrtmgp/ext
+        url = https://github.com/earth-system-radiation/rte-rrtmgp.git
         fxrequired = AlwaysRequired
         fxtag = v1.7
         fxDONOTUSEurl = https://github.com/earth-system-radiation/rte-rrtmgp.git
 
 [submodule "rrtmgp-data"]
-	path = src/physics/rrtmgp/data
-	url = https://github.com/earth-system-radiation/rrtmgp-data.git
+        path = src/physics/rrtmgp/data
+        url = https://github.com/earth-system-radiation/rrtmgp-data.git
         fxrequired = AlwaysRequired
         fxtag = v1.8
         fxDONOTUSEurl = https://github.com/earth-system-radiation/rrtmgp-data.git
 
 [submodule "mpas"]
-	path = src/dynamics/mpas/dycore
-	url = https://github.com/MPAS-Dev/MPAS-Model.git
+        path = src/dynamics/mpas/dycore
+        url = https://github.com/MPAS-Dev/MPAS-Model.git
         fxrequired = AlwaysRequired
         fxsparse = ../.mpas_sparse_checkout
         fxtag = v8.2.1
-	fxDONOTUSEurl = https://github.com/MPAS-Dev/MPAS-Model.git
+        fxDONOTUSEurl = https://github.com/MPAS-Dev/MPAS-Model.git
 
 [submodule "cosp2"]
-	path = src/physics/cosp2/src
-	url = https://github.com/CFMIP/COSPv2.0
+        path = src/physics/cosp2/src
+        url = https://github.com/CFMIP/COSPv2.0
         fxrequired = AlwaysRequired
         fxsparse = ../.cosp_sparse_checkout
         fxtag = v2.1.4cesm
-	fxDONOTUSEurl = https://github.com/CFMIP/COSPv2.0
+        fxDONOTUSEurl = https://github.com/CFMIP/COSPv2.0
 
 [submodule "clubb"]
-	path = src/physics/clubb
-	url = https://github.com/larson-group/clubb_release
+        path = src/physics/clubb
+        url = https://github.com/larson-group/clubb_release
         fxrequired = AlwaysRequired
         fxsparse = ../.clubb_sparse_checkout
         fxtag = clubb_4ncar_20240605_73d60f6_gpufixes_posinf
@@ -151,7 +151,7 @@ fxDONOTUSEurl = https://github.com/ESMCI/ccs_config_cesm.git
 [submodule "cime"]
 path = cime
 url = https://github.com/jedwards4b/cime
-fxtag = ftorch_1236c0fed_0.0.1
+fxtag = ftorch_1236c0fed_0.0.2
 fxrequired = ToplevelRequired
 fxDONOTUSEurl = https://github.com/ESMCI/cime
 
@@ -207,6 +207,6 @@ fxDONOTUSEurl = https://github.com/ESCOMP/FMS_interface
 [submodule "FTorch"]
 path = libraries/FTorch
 url = https://github.com/ESCOMP/FTorch_interface
-fxtag = v0.0.1
+fxtag = v0.0.3
 fxrequired = ToplevelRequired
 fxDONOTUSEurl = https://github.com/ESCOMP/FTorch_interface
